@@ -1,0 +1,95 @@
+timestamp: 2012-08-29T21:02:21.369222
+CREATE TABLE auth_user(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username CHAR(512),
+    first_name CHAR(512),
+    last_name CHAR(512),
+    email CHAR(512),
+    password CHAR(512),
+    created_on TIMESTAMP,
+    modified_on TIMESTAMP,
+    registration_key CHAR(512),
+    reset_password_key CHAR(512),
+    registration_id CHAR(512)
+);
+success!
+timestamp: 2012-08-29T21:02:21.577716
+CREATE TABLE auth_group(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2012-08-29T21:02:21.736536
+CREATE TABLE auth_membership(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user(id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group(id) ON DELETE CASCADE
+);
+success!
+timestamp: 2012-08-29T21:02:21.979084
+CREATE TABLE auth_permission(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER REFERENCES auth_group(id) ON DELETE CASCADE,
+    name CHAR(512),
+    table_name CHAR(512),
+    record_id INTEGER
+);
+success!
+timestamp: 2012-08-29T21:02:22.206139
+CREATE TABLE auth_event(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time_stamp TIMESTAMP,
+    client_ip CHAR(512),
+    user_id INTEGER REFERENCES auth_user(id) ON DELETE CASCADE,
+    origin CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2012-08-29T21:02:22.492480
+CREATE TABLE auth_cas(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user(id) ON DELETE CASCADE,
+    created_on TIMESTAMP,
+    service CHAR(512),
+    ticket CHAR(512),
+    renew CHAR(1)
+);
+success!
+timestamp: 2012-08-29T21:10:02.868316
+CREATE TABLE image(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user(id) ON DELETE CASCADE,
+    picture CHAR(512)
+);
+success!
+timestamp: 2012-08-29T21:10:03.072454
+CREATE TABLE comment(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    image_id INTEGER REFERENCES image(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES auth_user(id) ON DELETE CASCADE,
+    body TEXT
+);
+success!
+timestamp: 2012-08-29T21:10:03.323685
+CREATE TABLE like(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    image_id INTEGER REFERENCES image(id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES auth_user(id) ON DELETE CASCADE,
+    like CHAR(1)
+);
+success!
+timestamp: 2012-08-30T00:08:13.128101
+ALTER TABLE comment ADD title CHAR(512);
+timestamp: 2012-08-30T00:08:42.664263
+ALTER TABLE image ADD title CHAR(512);
+timestamp: 2012-08-30T01:07:59.933429
+ALTER TABLE comment ADD author CHAR(512);
+timestamp: 2012-08-30T01:08:00.160810
+ALTER TABLE like ADD author CHAR(512);
+timestamp: 2012-08-30T15:32:12.045082
+ALTER TABLE image ADD user CHAR(512);
+timestamp: 2012-08-30T15:32:12.265964
+ALTER TABLE comment ADD user CHAR(512);
+timestamp: 2012-08-30T15:32:12.478069
+ALTER TABLE like ADD user CHAR(512);

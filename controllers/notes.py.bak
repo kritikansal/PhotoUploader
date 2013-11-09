@@ -1,0 +1,205 @@
+# -*- coding: utf-8 -*-
+### required - do no delete
+def user(): return dict(form=auth())
+def download(): return response.download(request,db)
+def call(): return service()
+### end requires
+
+@auth.requires_login()
+def index():
+    images = db().select(db.image.ALL, orderby=db.image.title)
+    return dict(images=images)
+
+def view():
+    images = db().select(db.image.ALL, orderby=db.image.title)
+    return dict(images=images)
+
+@auth.requires_login()
+def show():
+    image = db.image(request.args(0)) or redirect(URL('index'))
+    db.comment.image_id.default = image.id
+    db.like.User.default = auth.user.username
+    db.comment.User.default=auth.user.username
+   
+    form = crud.create(db.comment,
+                       message='your comment is posted',
+            next=URL(args=image.id))
+    form2 = crud.create(db.like,message='like',next=URL(args=image.id))
+                     #message='like',
+            #next=URL(args=image.id))
+    comments = db(db.comment.image_id==image.id).select()
+    likes = db(db.like.image_id==image.id).select()
+    return dict(image=image, comments=comments, form=form ,likes=likes ,form2=form2)
+
+
+def delete():
+    query = db(db.image.id==request.args(0)).select().first() ## grabbing comment to be deleted from comment_results
+    if db.auth_user.username == db.image.User:
+        remove = db(db.image.id==query).delete()
+    if remove:
+        redirect(URL('show'))
+    return dict(remove=remove)
+
+
+
+@auth.requires_login()
+def error():
+    return dict()
+
+@auth.requires_login()
+def Upload():
+   #record = db.image(request.args(0)) or redirect(URL('index'))
+   db.image.User.default=auth.user.username
+   form = SQLFORM(db.image)
+   if form.process().accepted:
+       response.flash = 'form accepted'
+   elif form.errors:
+       response.flash = 'form has errors'
+   else:
+       response.flash = 'please fill out the form'
+   return dict(form=form)
+
+#def uploadimage():
+#    record = db.image(request.args(0)) or redirect(URL('index'))
+#    dbtable = db.image
+#    #db.image.author.default=db.auth_user.username
+#    db.image.user_id.default=auth_user.id
+#    if len(request.args):
+#        records = db(dbtable.id==request.args[0]).select()
+#    if len(request.args) and len(records):
+#        form = SQLFORM(dbtable, records[0], deletable=True)
+#    else:
+#        form = SQLFORM(dbtable)
+#    if form.accepts(request.vars, session):
+#        response.flash = 'Photo uploaded successfully'
+#makeThumbnail(dbtable,form.vars.id,(175,175))
+#    elif form.errors:
+#        response.flash = 'form has errors'
+
+def list_records():
+    table = request.args(0)
+    query = request.vars.query
+    records = db(query).select(db[table].ALL)
+    return dict(records=records)
+
+def makeThumbnail(dbtable,ImageID,size=(150,150)):
+    try:    
+        thisImage=db(dbtable.id==ImageID).select()[0]
+        import os, uuid
+        from PIL import Image
+    except: return
+    im=Image.open(request.folder + 'uploads/' + thisImage.mainfile)
+    im.thumbnail(size,Image.ANTIALIAS)
+    thumbName='uploads.thumb.%s.jpg' % (uuid.uuid4())
+    im.save(request.folder + 'uploads/' + thumbName,'jpeg')
+    thisImage.update_record(thumb=thumbName)
+    return 
+    
+@auth.requires_login()
+def ImageDisplay():
+    dbtable = db.image          #uploads table name
+    if len(request.args):
+        records = db(dbtable.id==request.args[0]).select()
+    if len(request.args) and len(records):
+        form = SQLFORM(dbtable, records[0], deletable=True)
+    else:
+        form = SQLFORM(dbtable)
+    #if form.accepts(request.vars, session): 
+        #response.flash = 'form accepted'
+        #makeThumbnail(dbtable,form.vars.id,(175,175))
+    #elif form.errors:
+        #response.flash = 'form has errors'
+    ## Quick list just to demonstrate...
+    list = crud.select(dbtable)
+    return dict(list=list)
+
+def CommentDisplay():
+    dbtable = db.comment          #uploads table name
+    if len(request.args):
+        records = db(dbtable.id==request.args[0]).select()
+    if len(request.args) and len(records):
+        form = SQLFORM(dbtable, records[0], deletable=True)
+    else:
+        form = SQLFORM(dbtable)
+    #if form.accepts(request.vars, session): 
+        #response.flash = 'form accepted'
+        #makeThumbnail(dbtable,form.vars.id,(175,175))
+    #elif form.errors:
+        #response.flash = 'form has errors'
+    ## Quick list just to demonstrate...
+    list = crud.select(dbtable)
+    return dict(list=list)
+
+
+def LikeDisplay():
+    dbtable = db.like
+    if len(request.args):
+        records = db(dbtable.id==request.args[0]).select()
+    if len(request.args) and len(records):
+        form = SQLFORM(dbtable, records[0], deletable=True)
+    else:
+        form = SQLFORM(dbtable)
+    list = crud.select(dbtable)
+    return dict(list=list)
+
+
+    
+def Comment():
+   form = SQLFORM(db.comment)
+   if form.process().accepted:
+       response.flash = 'form accepted'
+   elif form.errors:
+       response.flash = 'form has errors'
+   else:
+       response.flash = 'please fill out the form'
+   return dict(form=form)
+
+def Like():
+   form = SQLFORM(db.like)
+   if form.process().accepted:
+       response.flash = 'form accepted'
+   elif form.errors:
+       response.flash = 'form has errors'
+   else:
+       response.flash = 'please fill out the form'
+   return dict(form=form)
+
+
+
+
+
+   
+#def myform():
+#        response.files.append(URL(r=request, c='static', f='uploadify/uploadify.css'))
+#        response.files.append(URL(r=request, c='static', f='uploadify/swfobject.js'))
+#        response.files.append(URL(r=request, c='static', f='uploadify/jquery.uploadify.v2.1.4.min.js'))    
+#        form = SQLFORM(db.image)    
+       
+#        if request.post_vars:
+#            c=request.post_vars.Filedata        
+#            db.image.insert(db.image.picture(c.picture))
+#                   
+#        script= """
+#               $(document).ready(function() {
+#                   $('#image_file').uploadify({
+#                   'uploader'  : '%(uploader)s',
+#                   'script'    : '%(url)s',
+#                   'cancelImg' : '%(cancelImg)s',
+#                   auto:true
+#                   });
+#               });
+#               """
+#        uploader = URL(r=request, c='static', f='uploadify/uploadify.swf')
+#        cancelImg = URL(r=request, c='static', f='uploadify/cancel.png')
+#        url = URL(r=request, c='component', f='index.load')
+#        script=SCRIPT(script % dict(uploader = uploader, url = url, cancelImg = cancelImg))
+#        return dict(form=form, script=script)
+#@auth.requires_login()
+#def upload():
+#    form = SQLFORM(db.image)
+#    if form.process().accepted:
+#        id=db.image.insert()
+#    return dict(form=form)    
+#@auth.requires_login()
+#def delete():
+es.py")

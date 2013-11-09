@@ -1,0 +1,10 @@
+{{extend 'layout.html'}}
+<center><h3> {{=images.title}}</h3></center><br />
+<center>
+<img width="200px"
+src="{{=URL('download', args=images.picture)}}" />
+</center>
+<br />
+<center>
+{{=A('Delete',_href=URL('delete',args=images.id),   _class='button')}}
+</center>

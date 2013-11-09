@@ -1,0 +1,37 @@
+{{extend 'layout.html'}}
+<center> <h2><u> {{=image.title}}</u></h2></center><br />
+<center>
+<img width="200px"
+     src="{{=URL('download', args=image.picture)}}" />
+</center>
+<p>
+{{d1=[]}}
+{{d2=[]}}
+{{if len(comments):}}
+  <h4><u>Comments:</u></h4>
+  {{for comment in comments:}}
+      {{if comment.User in d1:}}
+      {{else:}}
+          <h6>{{=comment.User}} says <i>{{=comment.body}}</i></h6>
+          {{d1.append(comment.User)}}
+      {{pass}}
+  {{pass}}
+{{else:}}
+  <h4><u>No comments posted yet!!</u></h4>
+{{pass}}
+<h4><u>Post a comment:</u></h4><br />
+{{=form}}</p>
+<p>
+{{if len(likes):}}
+    <h4><u>Likes:</u></h4>
+     {{for like in likes:}}
+         {{if like.User in d2:}}
+         {{else:}}
+            <h6>{{=like.User}} likes {{=image.title}}</i></h6>
+            {{d2.append(like.User)}}
+         {{pass}}
+     {{pass}}
+{{else:}} <h4><u>No likes posted yet!!</u></h4>
+{{pass}}
+<h4><u>Like Image</u> </h4><br />
+{{=form2}}</p>

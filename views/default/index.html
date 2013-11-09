@@ -1,0 +1,5 @@
+{{extend 'layout.html'}}
+<h3> {{=A('Manage : Only Admin', _href=URL(r=request,f='manage'), _class='button')}} </h3><br />
+<h4> {{=A("Upload Image", _href=URL("Upload"))}} </h4><br />
+<h4> {{=A("View Images",_href=URL("view"))}} </h4><br />
+<h4> {{=A("Delete Images",_href=URL("calldelete"))}} </h4>
